@@ -59,8 +59,6 @@ public class Application extends ResourceServerConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.NEVER)
             .and()
 
-            .addFilterBefore(new CORSFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterAfter(CORSFilter.class)
             .csrf().disable()
 
             .authorizeRequests().anyRequest().authenticated()
@@ -74,7 +72,7 @@ public class Application extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         OAuth2AuthenticationEntryPoint ep = new OAuth2AuthenticationEntryPoint();
-        ep.setExceptionRenderer(new CustomDefaultOAuth2ExceptionRenderer(oauthHost));
+        //ep.setExceptionRenderer(new CustomDefaultOAuth2ExceptionRenderer(oauthHost));
         resources.authenticationEntryPoint(ep);
     }
 
@@ -83,39 +81,17 @@ public class Application extends ResourceServerConfigurerAdapter {
     @Order(-10)
     protected static class LoginConfig extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        private AuthenticationManager authenticationManager;
+//        @Autowired
+//        private AuthenticationManager authenticationManager;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.addFilterAfter(new CORSFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and()
-
-                    .csrf().disable()
-
-                    .requestMatchers()
-                    .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access", "/logout")
-                    .and()
-
-                    .authorizeRequests()
-                    .antMatchers("/manage/**").permitAll()
-                    .and()
-
-                    .formLogin()
-                    .loginPage("/login").failureUrl("/login?error=true").permitAll()
-                    .and()
-                    .logout()
-                    .invalidateHttpSession(true)
-                    .logoutSuccessHandler(new CustomLogoutSuccessHandler()).permitAll()
-                    .and()
-                    .authorizeRequests()
-                    .anyRequest().authenticated();
 
         }
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.parentAuthenticationManager(authenticationManager);
+            //auth.parentAuthenticationManager(authenticationManager);
         }
         @Override
         public void configure(WebSecurity webSecurity) throws Exception {
@@ -166,8 +142,8 @@ public class Application extends ResourceServerConfigurerAdapter {
             return result;
         }
 
-        @Autowired
-        private AuthenticationManager authenticationManager;
+//        @Autowired
+//        private AuthenticationManager authenticationManager;
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -207,8 +183,8 @@ public class Application extends ResourceServerConfigurerAdapter {
         public void configure(AuthorizationServerEndpointsConfigurer endpoints)
                 throws Exception {
 
-            endpoints.tokenStore(tokenStore())
-                    .authenticationManager(authenticationManager);
+//            endpoints.tokenStore(tokenStore())
+//                    .authenticationManager(authenticationManager);
 
         }
 
@@ -219,7 +195,7 @@ public class Application extends ResourceServerConfigurerAdapter {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer)
                 throws Exception {
             OAuth2AuthenticationEntryPoint ep = new OAuth2AuthenticationEntryPoint();
-            ep.setExceptionRenderer(new CustomDefaultOAuth2ExceptionRenderer(oauthHost));
+            //ep.setExceptionRenderer(new CustomDefaultOAuth2ExceptionRenderer(oauthHost));
             oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess(
                     "isAuthenticated()")
                     .authenticationEntryPoint(ep).allowFormAuthenticationForClients();
@@ -239,103 +215,11 @@ public class Application extends ResourceServerConfigurerAdapter {
         @Value("${ldap.mocked}")
         private Boolean isMocked;
 
-        @Autowired
-        private JdbcUserDetailsService jdbcUserDetailsService;
-
-        @Autowired
-        private JdbcAuthoritiesPopulator jdbcAuthoritiesPopulator;
 
         @Autowired
         public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-            if(!isMocked) {
-                auth
-                        .ldapAuthentication()
-                        .contextSource()
-                        .url(ldapUrl)
-                        .managerDn("cn=AlephWebServices,cn=Users,dc=turner,dc=com")
-                        .managerPassword("TTurner2012**")
-                        .and()
-                        .userDnPatterns("cn=Users,dc=turner,dc=com")
-                        .userSearchBase("cn=Users,dc=turner,dc=com")
-                        .userSearchFilter("(&(sAMAccountName={0})(objectClass=top)(objectClass=person)(objectClass=organizationalPerson)(objectClass=user))")
-                        .groupSearchBase("cn=Users,dc=turner,dc=com")
-                        .ldapAuthoritiesPopulator(jdbcAuthoritiesPopulator)
-                        .userDetailsContextMapper(jdbcUserDetailsService);
-            } else {
-                auth
-                        .authenticationProvider(new AuthenticationProvider() {
-                            @Override
-                            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                                return new UsernamePasswordAuthenticationToken(
-                                        jdbcUserDetailsService.mapUserFromContext(
-                                                null,
-                                                authentication.getPrincipal().toString(),
-                                                Collections.emptyList()),
-                                        authentication.getCredentials(),
-                                        jdbcAuthoritiesPopulator.getGrantedAuthorities(null, authentication.getPrincipal().toString()));
-                            }
-
-                            @Override
-                            public boolean supports(Class<?> authentication) {
-                                return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-                            }
-                        })
-                        .userDetailsService(new UserDetailsService() {
-                            @Override
-                            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                                return jdbcUserDetailsService.mapUserFromContext(null, username, Collections.emptyList());
-                            }
-                        });
-
-
-                auth
-                        .authenticationProvider(new AuthenticationProvider() {
-                            @Override
-                            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                                return new UsernamePasswordAuthenticationToken(
-                                        jdbcUserDetailsService.mapUserFromContext(
-                                                null,
-                                                authentication.getPrincipal().toString(),
-                                                Collections.emptyList()),
-                                        authentication.getCredentials(),
-                                        jdbcAuthoritiesPopulator.getGrantedAuthorities(null, authentication.getPrincipal().toString()));
-                            }
-
-                            @Override
-                            public boolean supports(Class<?> authentication) {
-                                return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-                            }
-                        })
-                        .userDetailsService(new UserDetailsService() {
-                            @Override
-                            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                                return jdbcUserDetailsService.mapUserFromContext(null, username, Collections.emptyList());
-                            }
-                        });
-            }
+            auth.inMemoryAuthentication().withUser("julian").password("1234").roles("user");
         }
-    }
-
-    @Configuration
-    @EnableRedisHttpSession
-    @Profile({ "prod", "trng", "preprod" })
-    protected static class HttpSessionConfig {
-
-        @Value("${aleph.oauth.redis.host}")
-        private String redisHost;
-
-        @Value("${aleph.oauth.redis.port}")
-        private int redisPort;
-
-        @Bean
-        JedisConnectionFactory jedisConnectionFactory() {
-            JedisConnectionFactory factory = new JedisConnectionFactory();
-            factory.setHostName(redisHost);
-            factory.setPort(redisPort);
-            factory.setUsePool(true);
-            return factory;
-        }
-
     }
 
 }

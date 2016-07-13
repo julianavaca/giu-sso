@@ -1,6 +1,6 @@
-package com.turner.service;
+package com.giu.service;
 
-import com.turner.domain.AlephUser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class JdbcUserDetailsService implements UserDetailsContextMapper{
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
         try {
-            return getAlephUser(username, authorities);
+            return null;//getAlephUser(username, authorities);
         } catch (EmptyResultDataAccessException e) {
             LOGGER.debug("Error trying to mapping the user from context");
             LOGGER.error("Stacktrace: ", e);
@@ -58,21 +58,21 @@ public class JdbcUserDetailsService implements UserDetailsContextMapper{
         }
     }
 
-    private AlephUser getAlephUser(String username, Collection<? extends GrantedAuthority> authorities) {
-        return jdbcTemplate.queryForObject(USER_DETAILS_QUERY,
-                new String[]{username.toUpperCase()},
-                (rs, rowNum) -> new AlephUser(
-                        rs.getString(USR_NOMBRE_COLUMN),
-                        username,
-                        rs.getString(USR_NOMBRES_COLUMN),
-                        rs.getString(USR_APELLIDOS_COLUMN),
-                        rs.getString(USR_MAIL_COLUMN),
-                        rs.getString(KEY_ENCRYPT_RAW_COLUMN),
-                        rs.getString(PASS_ENCRYPT_RAW_COLUMN),
-                        rs.getInt(USR_ESTADO_COLUMN),
-                        authorities)
-        );
-    }
+//    private AlephUser getAlephUser(String username, Collection<? extends GrantedAuthority> authorities) {
+//        return jdbcTemplate.queryForObject(USER_DETAILS_QUERY,
+//                new String[]{username.toUpperCase()},
+//                (rs, rowNum) -> new AlephUser(
+//                        rs.getString(USR_NOMBRE_COLUMN),
+//                        username,
+//                        rs.getString(USR_NOMBRES_COLUMN),
+//                        rs.getString(USR_APELLIDOS_COLUMN),
+//                        rs.getString(USR_MAIL_COLUMN),
+//                        rs.getString(KEY_ENCRYPT_RAW_COLUMN),
+//                        rs.getString(PASS_ENCRYPT_RAW_COLUMN),
+//                        rs.getInt(USR_ESTADO_COLUMN),
+//                        authorities)
+//        );
+//    }
 
     /**
      * Reverse of the above operation. Populates a context object from the supplied user object.
