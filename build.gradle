@@ -17,8 +17,8 @@ targetCompatibility = 1.8
 ext {
     nexusUser = "admin"
     nexusPassword = "R3dB33575"
-    nexusUrl = "http://repo.dev.redbee.io:8081/content/repositories/releases/"
-    nexusSnapshot = "http://repo.dev.redbee.io:8081/content/repositories/snapshots/"
+    nexusUrl = "http://repo.dev.redbee.io:80/content/repositories/releases/"
+    nexusSnapshot = "http://repo.dev.redbee.io:80/content/repositories/snapshots/"
 }
 
 buildscript {
@@ -92,7 +92,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-redis'
 
     //Oracle dependencies
-    compile "com.oracle:ojdbc6:11.1.0.6.0-Production"
+    compile "oracle:oracle:1.4:Production"
 
     //Test dependencies
     testCompile 'cglib:cglib-nodep:3.1'
@@ -102,12 +102,10 @@ dependencies {
     testCompile 'org.codehaus.groovy:groovy-all:2.4.1'
     testCompile("org.springframework.boot:spring-boot-starter-test")
 
-    compile("com.turner.aleph:aleph-stored-procedures:0.0.5")
-    compile("com.turner.aleph:aleph-commons:0.0.4-SNAPSHOT")
     compile 'net.logstash.logback:logstash-logback-encoder:4.5.1'
 }
 
-sonarRunner {
+/*sonarRunner {
     sonarProperties {
         property 'sonar.projectKey', 'giu-oauth'
         property 'sonar.projectName', 'giu-oauth'
@@ -120,11 +118,11 @@ sonarRunner {
 
         property "sonar.sourceEncoding", "UTF-8"
         property "sonar.exclusions", "src/main/java/com/turner/configuration/*.java, " +
-                "**/Application.java, " +
+                "**//*Application.java, " +
                 "src/main/java/com/turner/domain/*.java, " +
                 "src/main/java/com/turner/JdbcAuthoritiesPopulator.java"
     }
-}
+}*/
 
 uploadArchives {
     repositories {

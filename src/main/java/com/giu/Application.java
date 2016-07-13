@@ -3,6 +3,7 @@ package com.giu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.Order;
@@ -44,7 +45,7 @@ import java.util.Collections;
 @SpringBootApplication
 @SessionAttributes("authorizationRequest")
 @EnableResourceServer
-@ImportResource(value = "classpath:aop-config.xml")
+//@ImportResource(value = "classpath:aop-config.xml")
 public class Application extends ResourceServerConfigurerAdapter {
 
     public static void main(String[] args) {
@@ -188,7 +189,7 @@ public class Application extends ResourceServerConfigurerAdapter {
 
         }
 
-        @Value("${aleph.oauth.uri}")
+        @Value("${giu.oauth.uri}")
         private String oauthHost;
 
         @Override
