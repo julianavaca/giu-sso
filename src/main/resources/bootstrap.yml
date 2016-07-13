@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: giu-oauth
+  cloud:
+    config:
+      env: develop
+      uri: http://localhost:18190/giu-cloud-config/config
